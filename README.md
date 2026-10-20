@@ -28,6 +28,10 @@ AI-assisted feedback that is grounded in what the resume actually says.
   versions for one job; score trend and recurring skill gaps, all computed from saved data.
 - **Interview preparation**: technical, behavioral and project questions with answer outlines tied to
   resume evidence, explicitly presented as practice material.
+- **Polished, consistent UI**: a small design system (theme tokens, light and dark palettes) and
+  reusable building blocks (`SectionCard`, typed `DataTable`, `StatCard`, `QueryBoundary`, pickers),
+  responsive from phone to desktop, with accessible labels, keyboard focus and clear empty, loading and
+  error states.
 - **Security & privacy**: Argon2 password hashing, httpOnly SameSite cookies, CSRF header check,
   ownership checks on every resource (404 for others' data), safe error envelopes, no sensitive logging,
   password reset, full account deletion.
@@ -40,7 +44,7 @@ AI-assisted feedback that is grounded in what the resume actually says.
 | Backend | Python 3.12, FastAPI, Pydantic 2, SQLAlchemy 2.0, Alembic, PostgreSQL 17, PyJWT, Argon2, PyMuPDF, python-docx, ReportLab, httpx |
 | AI | OpenAI-compatible Chat Completions with structured outputs (configurable model/base URL), rule-based mock provider |
 | Testing | Pytest (real PostgreSQL), Vitest + Testing Library, Playwright |
-| Quality | Ruff, mypy (strict), ESLint, `tsc --noEmit` |
+| Quality | Ruff, mypy (strict), ESLint, `tsc --noEmit`, Husky + lint-staged git hooks |
 
 ## Architecture
 
@@ -81,6 +85,9 @@ Prerequisites: Node.js 22, Python 3.12, PostgreSQL 16+ (or run `.\scripts\dev-db
 portable, no-admin instance). Full instructions: [docs/setup.md](docs/setup.md).
 
 ```powershell
+# Git hooks (repository root, once)
+npm install
+
 # Backend
 cd backend
 python -m venv .venv; .\.venv\Scripts\Activate.ps1
@@ -188,4 +195,5 @@ To refresh them: run the app with `python -m scripts.seed_demo` data (fictional)
 
 ## License
 
-Portfolio project. Add a license of your choice before publishing.
+No license file has been added yet, so all rights are reserved by default. Add one (for example MIT)
+if you want others to reuse the code.
