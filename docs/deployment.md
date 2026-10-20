@@ -11,24 +11,46 @@ Because the frontend proxies `/api/*`, users only ever see the frontend domain a
 is first-party. The API domain does not need to be public-facing, but it must be reachable from the
 frontend host.
 
-## Quick path: Netlify + Render + Neon (all free tiers)
+## Live setup: Netlify + Render + Neon (all free tiers)
 
-The repository includes `netlify.toml` (frontend) and `render.yaml` (API Blueprint).
+This is how the public demo is deployed.
 
-1. **Neon**: create a project and copy the pooled connection string
-   (`postgresql://…neon.tech/…?sslmode=require`). The API converts it to the psycopg driver itself.
-2. **Render**: New → Blueprint → select this repository. When prompted, set `DATABASE_URL` to the Neon
-   string and leave `FRONTEND_ORIGINS` / `FRONTEND_BASE_URL` as a placeholder for now. `SECRET_KEY` is
-   generated. Wait for `/health` to return `{"status":"ok"}` and copy the service URL.
-3. **Netlify**: Add new project → Import from GitHub → this repository (settings come from
-   `netlify.toml`). Add the environment variable `BACKEND_URL=https://<your-api>.onrender.com`, then
-   deploy.
-4. **Back on Render**: set `FRONTEND_ORIGINS` and `FRONTEND_BASE_URL` to the Netlify URL
-   (e.g. `https://<site>.netlify.app`). Render redeploys automatically.
+| Part | Service | Config |
+|---|---|---|
+| Frontend | Netlify site `ai-resume-analyzer-sabin` | `frontend/netlify.toml`, `scripts/deploy-netlify.sh`, env `BACKEND_URL` |
+| API | Render web service `ai-resume-analyzer-api` (auto-deploys from `main`) | `render.yaml` |
+| Database | Neon project `ai-resume-analyzer` (US West, pooled connection) | `DATABASE_URL` on Render |
 
-Free-tier caveats: the Render instance sleeps after inactivity (the first request can take about a
-minute), and its disk is ephemeral, so uploaded original files disappear on restart while parsed text,
-versions and analyses remain in Neon.
+1. **Neon**: create a project and copy the **pooled** connection string
+   (`postgresql://…-pooler…neon.tech/…?sslmode=require`). The API converts it to the psycopg driver.
+2. **Render**: New → Blueprint → this repository (or create a web service with the same settings).
+   Set `DATABASE_URL` to the Neon string, and `FRONTEND_ORIGINS` / `FRONTEND_BASE_URL` to the Netlify URL.
+   `SECRET_KEY` is generated. Migrations run on start. Check `/health` returns `{"status":"ok"}`.
+3. **Netlify**: create a site, set the environment variable `BACKEND_URL=https://<api>.onrender.com`,
+   then deploy from Linux or WSL:
+
+   ```bash
+   npx netlify-cli login            # once
+   NETLIFY_SITE_ID=<site id> ./scripts/deploy-netlify.sh
+   ```
+
+   Alternatively, link the repository in the Netlify UI with base directory `frontend` so Netlify
+   builds on every push.
+
+Gotchas found while deploying:
+
+- **Build on Linux.** A Windows build of the Next.js runtime records the server handler with a
+  backslash path and every route returns 404. Use WSL, a Linux machine, or Netlify's own CI.
+- **Pass `--functions .netlify/functions-internal`** to `netlify deploy`, otherwise the CLI uploads only
+  static files and the Next.js server function is missing (404 everywhere). The script does this.
+- **Deploy from `frontend/`.** Running the CLI from the repository root with a `base` setting can
+  publish the whole folder; keeping `netlify.toml` inside `frontend/` prevents that.
+- **Injected head comment.** Netlify adds a promotional HTML comment to `<head>`, which causes React
+  hydration error #418. `app/layout.tsx` removes non-rendered `<head>` nodes before hydration.
+- **Cold starts.** Free Render instances sleep after inactivity; the first request can exceed the
+  proxy timeout and return 502. Retrying succeeds once the instance is awake.
+- **Ephemeral disk.** Uploaded originals on free Render instances disappear on restart; parsed text,
+  versions and analyses remain in Neon.
 
 ## 1. Database
 

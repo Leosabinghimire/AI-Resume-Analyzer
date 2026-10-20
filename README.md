@@ -4,6 +4,12 @@ A full-stack web application that compares a resume with job descriptions, expla
 transparent, deterministic score, highlights real skill gaps, and helps improve the resume with
 AI-assisted feedback that is grounded in what the resume actually says.
 
+**Live demo:** https://ai-resume-analyzer-sabin.netlify.app · **API docs:** https://ai-resume-analyzer-api-pibq.onrender.com/docs
+
+> The demo runs on free tiers: the API sleeps when idle, so the first request after a while can take
+> about a minute (retry if the first sign-in times out). It uses the rule-based demo AI provider, and
+> uploaded files are not kept across API restarts. Please don't upload a real resume to the demo.
+
 ![Analysis result](docs/screenshots/analysis.png)
 
 > Screenshots show the running application with a fictional sample resume ("Alex Rivera") and the
@@ -165,8 +171,9 @@ Database-backed suites (pytest, Playwright) need PostgreSQL, so they run on dema
 
 ## Deployment
 
-Frontend on Vercel, API on Render/Railway/Fly, managed PostgreSQL. Step-by-step guide and production
-checklist: [docs/deployment.md](docs/deployment.md).
+The live demo runs on **Netlify** (frontend), **Render** (API) and **Neon** (PostgreSQL), all free tiers.
+`render.yaml` defines the API; `frontend/netlify.toml` and `scripts/deploy-netlify.sh` deploy the frontend
+(build on Linux or WSL). Step-by-step guide and production checklist: [docs/deployment.md](docs/deployment.md).
 
 ## Known limitations
 
