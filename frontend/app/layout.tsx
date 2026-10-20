@@ -9,6 +9,10 @@ import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import { Providers } from "./providers";
 
+const HEAD_CLEANUP =
+  "(function(){var h=document.head;for(var n=h.firstChild;n;){var x=n.nextSibling;" +
+  "if(n.nodeType===8||(n.nodeType===3&&!n.data.trim()))h.removeChild(n);n=x}})();";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
@@ -21,6 +25,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.variable} {...mantineHtmlProps}>
       <head>
+        {/* Some hosts (e.g. Netlify) inject an HTML comment into <head>, which breaks React hydration
+            (error #418). This runs before hydration and removes nodes React did not render. */}
+        <script dangerouslySetInnerHTML={{ __html: HEAD_CLEANUP }} />
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
