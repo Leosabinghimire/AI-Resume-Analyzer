@@ -1,0 +1,23 @@
+# Lint and type-check what is being committed.
+
+# Frontend: ESLint (auto-fix, re-staged) on staged files + project type check.
+if git diff --cached --name-only --diff-filter=ACMR | grep -q '^frontend/'; then
+  (cd frontend && npx --no-install lint-staged) || exit 1
+fi
+
+# Backend: Ruff lint + format check on staged Python files.
+py_files=$(git diff --cached --name-only --diff-filter=ACMR -- 'backend/*.py' 'backend/**/*.py' | sed 's#^backend/##')
+if [ -n "$py_files" ]; then
+  if [ -x backend/.venv/Scripts/ruff.exe ]; then ruff=.venv/Scripts/ruff.exe
+  elif [ -x backend/.venv/bin/ruff ]; then ruff=.venv/bin/ruff
+  elif command -v ruff >/dev/null 2>&1; then ruff=ruff
+  else
+    echo "pre-commit: ruff not found. Create the backend venv (pip install -r requirements-dev.txt)." >&2
+    exit 1
+  fi
+  # shellcheck disable=SC2086
+  (cd backend && $ruff check $py_files && $ruff format --check $py_files) || {
+    echo "pre-commit: fix with 'ruff check --fix' and 'ruff format' in backend/." >&2
+    exit 1
+  }
+fi

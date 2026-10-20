@@ -61,8 +61,14 @@ backend/
   scripts/            demo seed, E2E server
   tests/              pytest suite + fixtures
 frontend/
-  app/                routes: (marketing), (auth), (app)
-  components/ features/ lib/ types/
+  app/                routes: (marketing), (auth), (app); pages compose feature components
+  components/ui/      design-system primitives: SectionCard, DataTable, StatCard, PageHeader,
+                      EmptyState, QueryBoundary, IconAction, PriorityList, BulletList, SearchInput…
+  components/domain/  shared domain visuals: ScoreRing, ScoreBreakdown, SkillBadges, VersionSourceBadge
+  components/layout/  app shell, navigation config, public header, user menu
+  features/*/         per-domain API hooks, schemas and components (resumes, jobs, analyses, coaching…)
+  hooks/              reusable state hooks (useListParams, useSelection)
+  lib/                API client, theme tokens, constants, formatting, notifications
   tests/unit/         Vitest
   e2e/                Playwright
 docs/                 architecture, setup, api, deployment, scoring
@@ -133,11 +139,22 @@ Latest local results (Windows 11, PostgreSQL 17.6):
 | Suite | Result |
 |---|---|
 | Backend pytest (auth, isolation, upload validation, parsing, matching, AI providers and guardrails, analyses, dashboard) | 69 passed |
-| Frontend Vitest (forms, upload, job form, result rendering, loading/error states, API client) | 27 passed |
+| Frontend Vitest (forms, upload, job form, result rendering, loading/error states, API client, shared UI components) | 34 passed |
 | Playwright E2E (register → upload → job → analysis → results → history → sign out/in → revisit; invalid file and credentials) | 2 passed |
 | Ruff, mypy strict, ESLint, TypeScript strict | clean |
 
 All automated tests use the mock AI provider or a mocked HTTP transport: no paid API calls.
+
+### Git hooks (Husky)
+
+Run `npm install` once in the repository root to enable the hooks.
+
+| Hook | Runs |
+|---|---|
+| `pre-commit` | ESLint (auto-fix) on staged frontend files via lint-staged, a full `tsc --noEmit`, and Ruff lint + format check on staged backend Python files |
+| `pre-push` | Frontend unit tests (Vitest) and backend strict type check (mypy) |
+
+Database-backed suites (pytest, Playwright) need PostgreSQL, so they run on demand rather than in hooks.
 
 ## Deployment
 
@@ -162,8 +179,9 @@ checklist: [docs/deployment.md](docs/deployment.md).
 
 | | |
 |---|---|
-| ![Landing](docs/screenshots/landing.png) | ![Resume editor](docs/screenshots/resume-detail.png) |
-| ![Interview prep](docs/screenshots/interview.png) | ![History, dark mode](docs/screenshots/history-dark.png) |
+| ![Landing page](docs/screenshots/landing.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+| ![Resume workspace](docs/screenshots/resume-workspace.png) | ![Dashboard, dark mode](docs/screenshots/dashboard-dark.png) |
+| ![Job descriptions](docs/screenshots/jobs.png) | |
 
 To refresh them: run the app with `python -m scripts.seed_demo` data (fictional), capture pages at
 1440×900 (and 390×844 for mobile), and save them in `docs/screenshots/`. Never use real resumes.

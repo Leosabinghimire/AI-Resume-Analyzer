@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { ErrorBlock, LoadingBlock } from "@/components/common/QueryState";
+import { ErrorBlock, LoadingBlock } from "@/components/ui/QueryState";
 import { AIInsightsCard } from "@/features/analyses/components/AIInsightsCard";
 import { MatchResultView } from "@/features/analyses/components/MatchResultView";
 import { ApiError } from "@/lib/api-client";

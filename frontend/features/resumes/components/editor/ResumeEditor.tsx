@@ -25,7 +25,18 @@ export function ResumeEditor() {
   );
 
   return (
-    <Accordion multiple defaultValue={SECTIONS} variant="separated" chevronPosition="left">
+    <Accordion
+      multiple
+      defaultValue={SECTIONS}
+      variant="separated"
+      chevronPosition="right"
+      radius="lg"
+      styles={{
+        item: { backgroundColor: "var(--app-surface)", border: "1px solid var(--app-border)", boxShadow: "var(--mantine-shadow-xs)" },
+        control: { paddingBlock: 6 },
+        label: { fontWeight: 600 },
+      }}
+    >
       <Accordion.Item value="contact">
         <Accordion.Control>Contact details</Accordion.Control>
         <Accordion.Panel>

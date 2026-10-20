@@ -1,141 +1,133 @@
-import { Badge, Card, Group, List, Progress, SimpleGrid, Stack, Table, Text, ThemeIcon, Title, Tooltip } from "@mantine/core";
-import { IconAlertTriangle, IconCheck, IconX } from "@tabler/icons-react";
-import { ScoreBreakdown } from "@/components/score/ScoreBreakdown";
-import { ScoreRing } from "@/components/score/ScoreRing";
-import { MatchedSkillBadges, SkillList } from "@/components/skills/SkillBadges";
+import { Grid, Group, Progress, SimpleGrid, Stack, Text, ThemeIcon, Tooltip } from "@mantine/core";
+import type { ReactNode } from "react";
+import {
+  IconAlertTriangle,
+  IconBriefcase,
+  IconCheck,
+  IconChecklist,
+  IconKey,
+  IconListCheck,
+  IconTags,
+  IconX,
+} from "@tabler/icons-react";
+import { ScoreBreakdown } from "@/components/domain/ScoreBreakdown";
+import { ScoreRing } from "@/components/domain/ScoreRing";
+import { MatchedSkillBadges, SkillList } from "@/components/domain/SkillBadges";
+import { BulletList, DataTable, PriorityList, SectionCard, type Column } from "@/components/ui";
 import { percent } from "@/lib/format";
-import type { MatchResult, Priority } from "@/types/api";
+import type { MatchResult, ResponsibilityAlignment } from "@/types/api";
 
-const PRIORITY_COLOR: Record<Priority, string> = { high: "red", medium: "yellow", low: "gray" };
+function SubHeading({ children }: { children: ReactNode }) {
+  return (
+    <Text size="sm" fw={600} mb={8}>
+      {children}
+    </Text>
+  );
+}
 
 export function MatchOverview({ result }: { result: MatchResult }) {
   return (
-    <Card>
-      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg" style={{ alignItems: "center" }}>
-        <Stack align="center" gap={4}>
-          <ScoreRing score={result.overall_score} size={150} />
-          <Text size="xs" c="dimmed" ta="center" maw={220}>
-            Coverage of this posting&apos;s stated requirements. Not an ATS score or hiring prediction.
-          </Text>
-        </Stack>
-        <div style={{ gridColumn: "span 2" }}>
+    <SectionCard>
+      <Grid gutter="xl" align="center">
+        <Grid.Col span={{ base: 12, sm: 4 }}>
+          <Stack align="center" gap="sm">
+            <ScoreRing score={result.overall_score} size={168} />
+            <Text size="xs" c="dimmed" ta="center" maw={230}>
+              Coverage of this posting&apos;s stated requirements. Not an ATS score or hiring prediction.
+            </Text>
+          </Stack>
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, sm: 8 }}>
           <ScoreBreakdown components={result.components} />
-        </div>
-      </SimpleGrid>
-    </Card>
+        </Grid.Col>
+      </Grid>
+    </SectionCard>
   );
 }
 
 export function SkillsSection({ result }: { result: MatchResult }) {
   return (
-    <Card>
-      <Title order={4} mb="md">
-        Skills
-      </Title>
-      <Stack gap="md">
+    <SectionCard title="Skills" icon={<IconTags size={18} />} description="Hover a matched skill to see where it was found.">
+      <Stack gap="lg">
         <div>
-          <Text size="sm" fw={500} mb={6}>
-            Matched ({result.matched_skills.length}){" "}
-            <Text span size="xs" c="dimmed">
-              — hover a skill to see where it was found
-            </Text>
-          </Text>
+          <SubHeading>Matched ({result.matched_skills.length})</SubHeading>
           <MatchedSkillBadges skills={result.matched_skills} />
         </div>
         <div>
-          <Text size="sm" fw={500} mb={6}>
-            Missing required ({result.missing_required_skills.length})
-          </Text>
+          <SubHeading>Missing required ({result.missing_required_skills.length})</SubHeading>
           <SkillList skills={result.missing_required_skills} color="red" variant="outline" emptyText="All required skills found." />
         </div>
         <div>
-          <Text size="sm" fw={500} mb={6}>
-            Missing preferred ({result.missing_preferred_skills.length})
-          </Text>
+          <SubHeading>Missing preferred ({result.missing_preferred_skills.length})</SubHeading>
           <SkillList skills={result.missing_preferred_skills} color="orange" variant="outline" emptyText="All preferred skills found." />
         </div>
       </Stack>
-    </Card>
+    </SectionCard>
   );
 }
 
 export function ImprovementsSection({ result }: { result: MatchResult }) {
-  if (result.improvement_areas.length === 0) return null;
   return (
-    <Card>
-      <Title order={4} mb="md">
-        Areas to improve
-      </Title>
-      <Stack gap="sm">
-        {result.improvement_areas.map((a) => (
-          <Group key={a.area} align="flex-start" wrap="nowrap" gap="sm">
-            <Badge color={PRIORITY_COLOR[a.priority]} variant="light" w={74} tt="capitalize" style={{ flexShrink: 0 }}>
-              {a.priority}
-            </Badge>
-            <div>
-              <Text size="sm" fw={600}>
-                {a.area}
-              </Text>
-              <Text size="sm" c="dimmed">
-                {a.detail}
-              </Text>
-            </div>
-          </Group>
-        ))}
-      </Stack>
-    </Card>
+    <SectionCard title="Areas to improve" icon={<IconChecklist size={18} />}>
+      <PriorityList
+        items={result.improvement_areas.map((a) => ({ key: a.area, priority: a.priority, title: a.area, detail: a.detail }))}
+        empty="No improvement areas identified for this job."
+      />
+    </SectionCard>
   );
 }
+
+const ALIGNMENT_COLUMNS: Column<ResponsibilityAlignment>[] = [
+  {
+    key: "responsibility",
+    header: "Responsibility",
+    width: "40%",
+    render: (r) => (
+      <Group gap={8} wrap="nowrap" align="flex-start">
+        <ThemeIcon size={20} radius="xl" color={r.aligned ? "teal" : "red"} variant="light" style={{ flexShrink: 0 }}>
+          {r.aligned ? <IconCheck size={12} /> : <IconX size={12} />}
+        </ThemeIcon>
+        <Text size="sm">{r.responsibility}</Text>
+      </Group>
+    ),
+  },
+  {
+    key: "evidence",
+    header: "Closest evidence in your resume",
+    render: (r) => (
+      <Text size="sm" c={r.best_match ? undefined : "dimmed"}>
+        {r.best_match ?? "No related content found"}
+      </Text>
+    ),
+  },
+  {
+    key: "similarity",
+    header: "Similarity",
+    width: 120,
+    render: (r) => (
+      <Tooltip label={r.aligned ? "Aligned (≥ 0.20)" : "Below the 0.20 alignment threshold"} multiline={false}>
+        <Stack gap={2}>
+          <Progress value={Math.min(100, (r.similarity / 0.35) * 100)} color={r.aligned ? "teal" : "red"} size="sm" aria-label="Similarity" />
+          <Text size="xs" c="dimmed">
+            {r.similarity.toFixed(2)}
+          </Text>
+        </Stack>
+      </Tooltip>
+    ),
+  },
+];
 
 export function ResponsibilitiesSection({ result }: { result: MatchResult }) {
   if (result.responsibility_alignment.length === 0) return null;
   return (
-    <Card p={0}>
-      <Stack gap={4} p="lg" pb="xs">
-        <Title order={4}>Responsibility alignment</Title>
-        <Text size="xs" c="dimmed">
-          Each responsibility from the posting with the most similar line from your resume (term overlap).
-        </Text>
-      </Stack>
-      <Table.ScrollContainer minWidth={640}>
-        <Table verticalSpacing="sm" horizontalSpacing="lg">
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th w="40%">Responsibility</Table.Th>
-              <Table.Th>Closest evidence in your resume</Table.Th>
-              <Table.Th w={110}>Similarity</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {result.responsibility_alignment.map((r) => (
-              <Table.Tr key={r.responsibility}>
-                <Table.Td>
-                  <Group gap={6} wrap="nowrap" align="flex-start">
-                    <ThemeIcon size={18} radius="xl" color={r.aligned ? "teal" : "red"} variant="light" style={{ flexShrink: 0 }}>
-                      {r.aligned ? <IconCheck size={12} /> : <IconX size={12} />}
-                    </ThemeIcon>
-                    <Text size="sm">{r.responsibility}</Text>
-                  </Group>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm" c={r.best_match ? undefined : "dimmed"}>
-                    {r.best_match ?? "No related content found"}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Tooltip label={r.aligned ? "Aligned (≥ 0.20)" : "Below the 0.20 alignment threshold"} multiline={false}>
-                    <Progress value={Math.min(100, (r.similarity / 0.35) * 100)} color={r.aligned ? "teal" : "red"} aria-label="Similarity" />
-                  </Tooltip>
-                  <Text size="xs" c="dimmed" mt={2}>
-                    {r.similarity.toFixed(2)}
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Table.ScrollContainer>
-    </Card>
+    <SectionCard
+      title="Responsibility alignment"
+      icon={<IconListCheck size={18} />}
+      description="Each responsibility from the posting with the most similar line from your resume (term overlap)."
+      flush
+    >
+      <DataTable columns={ALIGNMENT_COLUMNS} rows={result.responsibility_alignment} rowKey={(r) => r.responsibility} minWidth={680} />
+    </SectionCard>
   );
 }
 
@@ -143,17 +135,14 @@ export function ExperienceSection({ result }: { result: MatchResult }) {
   const { experience, education, keyword_coverage: kw } = result;
   return (
     <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
-      <Card>
-        <Title order={4} mb="sm">
-          Relevant experience
-        </Title>
-        {result.relevant_experience.length === 0 ? (
-          <Text size="sm" c="dimmed">
-            No roles closely related to this job were found.
-          </Text>
-        ) : (
-          <Stack gap="sm">
-            {result.relevant_experience.map((e) => (
+      <SectionCard title="Relevant experience" icon={<IconBriefcase size={18} />}>
+        <Stack gap="md">
+          {result.relevant_experience.length === 0 ? (
+            <Text size="sm" c="dimmed">
+              No roles closely related to this job were found.
+            </Text>
+          ) : (
+            result.relevant_experience.map((e) => (
               <div key={`${e.title}-${e.company}`}>
                 <Text size="sm" fw={600}>
                   {e.title}
@@ -163,41 +152,38 @@ export function ExperienceSection({ result }: { result: MatchResult }) {
                   {e.reason}
                 </Text>
               </div>
-            ))}
-          </Stack>
-        )}
-        <Title order={5} mt="lg" mb={4}>
-          Experience & education checks
-        </Title>
-        <List size="sm" spacing={6}>
-          <List.Item>{experience.explanation}</List.Item>
-          <List.Item>{education.explanation}</List.Item>
-        </List>
-      </Card>
-      <Card>
-        <Title order={4} mb={4}>
-          Keyword coverage · {percent(kw.coverage)}
-        </Title>
-        <Text size="xs" c="dimmed" mb="sm">
-          Important terms from the posting and whether they appear in your resume.
-        </Text>
-        <Text size="sm" fw={500} mb={6}>
-          Present
-        </Text>
-        <SkillList skills={kw.matched} color="teal" emptyText="None of the key terms were found." />
-        <Text size="sm" fw={500} mt="md" mb={6}>
-          Missing
-        </Text>
-        <SkillList skills={kw.missing} color="gray" variant="outline" emptyText="All key terms are present." />
-        {kw.missing.length > 0 && (
-          <Group gap={6} mt="sm" wrap="nowrap" align="flex-start">
-            <IconAlertTriangle size={14} style={{ flexShrink: 0, marginTop: 3 }} aria-hidden />
-            <Text size="xs" c="dimmed">
-              Only add terms that truthfully describe your experience.
-            </Text>
-          </Group>
-        )}
-      </Card>
+            ))
+          )}
+          <div>
+            <SubHeading>Experience & education checks</SubHeading>
+            <BulletList items={[experience.explanation, education.explanation]} />
+          </div>
+        </Stack>
+      </SectionCard>
+      <SectionCard
+        title={`Keyword coverage · ${percent(kw.coverage)}`}
+        icon={<IconKey size={18} />}
+        description="Important terms from the posting and whether they appear in your resume."
+      >
+        <Stack gap="md">
+          <div>
+            <SubHeading>Present</SubHeading>
+            <SkillList skills={kw.matched} color="teal" emptyText="None of the key terms were found." />
+          </div>
+          <div>
+            <SubHeading>Missing</SubHeading>
+            <SkillList skills={kw.missing} color="gray" variant="outline" emptyText="All key terms are present." />
+          </div>
+          {kw.missing.length > 0 && (
+            <Group gap={6} wrap="nowrap" align="flex-start">
+              <IconAlertTriangle size={14} style={{ flexShrink: 0, marginTop: 3 }} aria-hidden />
+              <Text size="xs" c="dimmed">
+                Only add terms that truthfully describe your experience.
+              </Text>
+            </Group>
+          )}
+        </Stack>
+      </SectionCard>
     </SimpleGrid>
   );
 }

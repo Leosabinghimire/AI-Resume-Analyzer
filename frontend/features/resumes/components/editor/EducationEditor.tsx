@@ -1,10 +1,9 @@
 "use client";
 
-import { Button, SimpleGrid, Stack, Textarea, TextInput } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import { SimpleGrid, Stack, Textarea, TextInput } from "@mantine/core";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import type { ResumeData } from "@/types/api";
-import { EntryCard, newId } from "./SectionCard";
+import { AddEntryButton, EntryCard, newId } from "./EntryCard";
 
 export function EducationEditor() {
   const { control, register, watch } = useFormContext<ResumeData>();
@@ -30,16 +29,8 @@ export function EducationEditor() {
           <Textarea label="Details" autosize minRows={1} maxLength={1000} mt="sm" {...register(`education.${index}.details`)} />
         </EntryCard>
       ))}
-      <Button
-        variant="light"
-        leftSection={<IconPlus size={16} />}
-        w="fit-content"
-        onClick={() =>
-          append({ id: newId(), institution: "", degree: "", field_of_study: "", start_date: "", end_date: "", details: "" })
-        }
-      >
-        Add education
-      </Button>
+      <AddEntryButton label="Add education" onClick={() =>
+          append({ id: newId(), institution: "", degree: "", field_of_study: "", start_date: "", end_date: "", details: "" })} />
     </Stack>
   );
 }
@@ -63,14 +54,7 @@ export function CertificationsEditor() {
           </SimpleGrid>
         </EntryCard>
       ))}
-      <Button
-        variant="light"
-        leftSection={<IconPlus size={16} />}
-        w="fit-content"
-        onClick={() => append({ id: newId(), name: "", issuer: "", date: "" })}
-      >
-        Add certification
-      </Button>
+      <AddEntryButton label="Add certification" onClick={() => append({ id: newId(), name: "", issuer: "", date: "" })} />
     </Stack>
   );
 }

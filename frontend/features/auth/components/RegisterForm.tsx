@@ -1,13 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Anchor, Button, Paper, PasswordInput, Stack, Text, TextInput, Title } from "@mantine/core";
-import { IconAlertCircle } from "@tabler/icons-react";
+import { Anchor, Button, PasswordInput, Stack, TextInput } from "@mantine/core";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { ApiError, errorMessage } from "@/lib/api-client";
+import { FormAlert } from "@/components/ui";
+import { ApiError } from "@/lib/api-client";
 import { useRegister } from "../api";
 import { registerSchema, type RegisterValues } from "../schemas";
+import { AuthCard } from "./AuthCard";
 
 export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   const registerUser = useRegister();
@@ -29,26 +30,26 @@ export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
       },
     }),
   );
-
-  const showBanner = registerUser.error && !(registerUser.error instanceof ApiError && registerUser.error.code === "email_taken");
+  // A taken email is shown on the field itself, so it does not also need a banner.
+  const bannerError =
+    registerUser.error instanceof ApiError && registerUser.error.code === "email_taken" ? null : registerUser.error;
 
   return (
-    <Paper withBorder shadow="sm" p={{ base: "lg", sm: "xl" }}>
+    <AuthCard
+      title="Create your account"
+      subtitle="Analyze resumes against real job descriptions in minutes."
+      footer={
+        <>
+          Already have an account?{" "}
+          <Anchor component={Link} href="/login" fw={600}>
+            Sign in
+          </Anchor>
+        </>
+      }
+    >
       <form onSubmit={onSubmit} noValidate aria-label="Create account form">
         <Stack gap="md">
-          <div>
-            <Title order={2} fz={24}>
-              Create your account
-            </Title>
-            <Text c="dimmed" size="sm">
-              Analyze resumes against real job descriptions in minutes.
-            </Text>
-          </div>
-          {showBanner && (
-            <Alert color="red" variant="light" icon={<IconAlertCircle size={18} />} role="alert">
-              {errorMessage(registerUser.error)}
-            </Alert>
-          )}
+          <FormAlert error={bannerError} />
           <TextInput label="Full name" autoComplete="name" required error={errors.full_name?.message} {...register("full_name")} />
           <TextInput label="Email" type="email" autoComplete="email" required error={errors.email?.message} {...register("email")} />
           <PasswordInput
@@ -66,17 +67,11 @@ export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
             error={errors.confirm_password?.message}
             {...register("confirm_password")}
           />
-          <Button type="submit" fullWidth loading={registerUser.isPending}>
+          <Button type="submit" fullWidth size="md" loading={registerUser.isPending}>
             Create account
           </Button>
-          <Text size="sm" ta="center">
-            Already have an account?{" "}
-            <Anchor component={Link} href="/login">
-              Sign in
-            </Anchor>
-          </Text>
         </Stack>
       </form>
-    </Paper>
+    </AuthCard>
   );
 }

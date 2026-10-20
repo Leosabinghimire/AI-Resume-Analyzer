@@ -1,5 +1,4 @@
-import { Group, Progress, Stack, Text, Tooltip } from "@mantine/core";
-import { IconInfoCircle } from "@tabler/icons-react";
+import { Group, Progress, Stack, Text } from "@mantine/core";
 import { scoreBand } from "@/lib/format";
 import type { ScoreComponent } from "@/types/api";
 
@@ -12,23 +11,17 @@ export function ScoreBreakdown({ components }: { components: ScoreComponent[] })
         return (
           <Stack key={c.key} gap={4}>
             <Group justify="space-between" gap="xs" wrap="nowrap">
-              <Group gap={6} wrap="nowrap">
-                <Text size="sm" fw={500}>
-                  {c.label}
-                </Text>
-                <Tooltip label={c.explanation}>
-                  <IconInfoCircle size={15} aria-label={`About ${c.label}`} style={{ opacity: 0.6 }} />
-                </Tooltip>
-              </Group>
-              <Text size="sm" c="dimmed">
+              <Text size="sm" fw={600}>
+                {c.label}
+              </Text>
+              <Text size="sm" c="dimmed" style={{ whiteSpace: "nowrap" }}>
                 {c.applicable ? `${Math.round(c.score ?? 0)}/100 · weight ${effectiveWeight}%` : "Not applicable"}
               </Text>
             </Group>
             <Progress
               value={c.applicable ? (c.score ?? 0) : 0}
               color={c.applicable ? scoreBand(c.score ?? 0).color : "gray"}
-              size="md"
-              radius="xl"
+              size="sm"
               aria-label={`${c.label} score`}
             />
             <Text size="xs" c="dimmed">

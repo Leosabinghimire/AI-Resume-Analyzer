@@ -3,12 +3,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, type RenderOptions } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 import { vi } from "vitest";
-import { theme } from "@/lib/theme";
+import { cssVariablesResolver, theme } from "@/lib/theme";
 
 export function renderWithProviders(ui: ReactElement, options?: RenderOptions) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   const Wrapper = ({ children }: { children: ReactNode }) => (
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver}>
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
     </MantineProvider>
   );

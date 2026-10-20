@@ -18,18 +18,46 @@ export function notifyWarning(message: string): void {
   notifications.show({ color: "yellow", message, icon: <IconAlertTriangle size={18} /> });
 }
 
-export function confirmDestructive(options: {
+interface ConfirmOptions {
   title: string;
   message: string;
   confirmLabel?: string;
   onConfirm: () => void;
-}): void {
+}
+
+export function confirmDestructive({ title, message, confirmLabel = "Delete", onConfirm }: ConfirmOptions): void {
   modals.openConfirmModal({
-    title: options.title,
-    centered: true,
-    children: <Text size="sm">{options.message}</Text>,
-    labels: { confirm: options.confirmLabel ?? "Delete", cancel: "Cancel" },
+    title,
+    children: (
+      <Text size="sm" c="dimmed">
+        {message}
+      </Text>
+    ),
+    labels: { confirm: confirmLabel, cancel: "Cancel" },
     confirmProps: { color: "red" },
-    onConfirm: options.onConfirm,
+    onConfirm,
+  });
+}
+
+interface ConfirmActionOptions extends Omit<ConfirmOptions, "onConfirm"> {
+  run: () => Promise<unknown>;
+  successMessage?: string;
+  errorTitle?: string;
+  onSuccess?: () => void;
+}
+
+/** Confirm a destructive action, run it, and report the outcome with a notification. */
+export function confirmAction({ run, successMessage, errorTitle, onSuccess, ...dialog }: ConfirmActionOptions): void {
+  confirmDestructive({
+    ...dialog,
+    onConfirm: () => {
+      run().then(
+        () => {
+          if (successMessage) notifySuccess(successMessage);
+          onSuccess?.();
+        },
+        (error: unknown) => notifyError(error, errorTitle ?? "Action failed"),
+      );
+    },
   });
 }

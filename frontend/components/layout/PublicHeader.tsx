@@ -1,56 +1,65 @@
 "use client";
 
-import { Anchor, Box, Burger, Button, Container, Drawer, Group, Stack } from "@mantine/core";
+import { Anchor, Box, Burger, Button, Container, Divider, Drawer, Group, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { PUBLIC_LINKS } from "./navigation";
 import { ThemeToggle } from "./ThemeToggle";
 
-const LINKS = [
-  { href: "/features", label: "Features" },
-  { href: "/features#scoring", label: "How scoring works" },
-  { href: "/privacy", label: "Privacy" },
-];
+function AuthButtons({ onNavigate, stacked }: { onNavigate?: () => void; stacked?: boolean }) {
+  return (
+    <>
+      <Button component={Link} href="/login" variant="default" onClick={onNavigate} fullWidth={stacked}>
+        Sign in
+      </Button>
+      <Button component={Link} href="/register" onClick={onNavigate} fullWidth={stacked}>
+        Get started
+      </Button>
+    </>
+  );
+}
 
 export function PublicHeader() {
   const [opened, { toggle, close }] = useDisclosure();
   return (
-    <Box component="header" style={{ borderBottom: "1px solid var(--mantine-color-default-border)" }}>
-      <Container size="lg" h={64}>
+    <Box
+      component="header"
+      pos="sticky"
+      top={0}
+      style={{
+        zIndex: 100,
+        borderBottom: "1px solid var(--app-border)",
+        background: "color-mix(in srgb, var(--app-surface) 85%, transparent)",
+        backdropFilter: "saturate(180%) blur(8px)",
+      }}
+    >
+      <Container size="lg" h={68}>
         <Group h="100%" justify="space-between" wrap="nowrap">
           <Logo />
-          <Group gap="lg" visibleFrom="sm" component="nav" aria-label="Main">
-            {LINKS.map((l) => (
-              <Anchor key={l.href} component={Link} href={l.href} c="dimmed" size="sm" fw={500}>
+          <Group gap={32} visibleFrom="sm" component="nav" aria-label="Main">
+            {PUBLIC_LINKS.map((l) => (
+              <Anchor key={l.href} component={Link} href={l.href} c="dimmed" size="sm" fw={500} underline="never">
                 {l.label}
               </Anchor>
             ))}
           </Group>
           <Group gap="sm" visibleFrom="sm">
             <ThemeToggle />
-            <Button component={Link} href="/login" variant="default">
-              Sign in
-            </Button>
-            <Button component={Link} href="/register">
-              Get started
-            </Button>
+            <AuthButtons />
           </Group>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" aria-label="Open menu" />
         </Group>
       </Container>
-      <Drawer opened={opened} onClose={close} title="Menu" hiddenFrom="sm" size="xs">
+      <Drawer opened={opened} onClose={close} title="Menu" hiddenFrom="sm" size="xs" position="right">
         <Stack>
-          {LINKS.map((l) => (
+          {PUBLIC_LINKS.map((l) => (
             <Anchor key={l.href} component={Link} href={l.href} onClick={close}>
               {l.label}
             </Anchor>
           ))}
-          <Button component={Link} href="/login" variant="default" onClick={close}>
-            Sign in
-          </Button>
-          <Button component={Link} href="/register" onClick={close}>
-            Get started
-          </Button>
+          <Divider />
+          <AuthButtons onNavigate={close} stacked />
           <ThemeToggle />
         </Stack>
       </Drawer>

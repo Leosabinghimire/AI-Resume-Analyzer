@@ -1,29 +1,30 @@
-import { Anchor, Box, Container, Group, Text } from "@mantine/core";
+import { Anchor, Box, Container, Group, Stack, Text } from "@mantine/core";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Logo } from "@/components/layout/Logo";
+import { PUBLIC_LINKS } from "@/components/layout/navigation";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
-    <Box>
+    <Box bg="var(--app-surface)">
       <PublicHeader />
       <main>{children}</main>
-      <Box component="footer" py="xl" mt={64} style={{ borderTop: "1px solid var(--mantine-color-default-border)" }}>
+      <Box component="footer" py={40} style={{ borderTop: "1px solid var(--app-border)" }}>
         <Container size="lg">
-          <Group justify="space-between" gap="md">
-            <Text size="sm" c="dimmed">
-              AI Resume Analyzer & Job Matcher — a portfolio project.
-            </Text>
-            <Group gap="lg">
-              <Anchor component={Link} href="/features" size="sm" c="dimmed">
-                Features
-              </Anchor>
-              <Anchor component={Link} href="/privacy" size="sm" c="dimmed">
-                Privacy
-              </Anchor>
-              <Anchor component={Link} href="/login" size="sm" c="dimmed">
-                Sign in
-              </Anchor>
+          <Group justify="space-between" align="flex-start" gap="xl">
+            <Stack gap="xs" maw={360}>
+              <Logo />
+              <Text size="sm" c="dimmed">
+                Transparent resume-to-job matching with grounded AI feedback. A portfolio project.
+              </Text>
+            </Stack>
+            <Group gap="xl" component="nav" aria-label="Footer">
+              {[...PUBLIC_LINKS, { href: "/login", label: "Sign in" }].map((l) => (
+                <Anchor key={l.href} component={Link} href={l.href} size="sm" c="dimmed">
+                  {l.label}
+                </Anchor>
+              ))}
             </Group>
           </Group>
         </Container>

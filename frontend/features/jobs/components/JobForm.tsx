@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Anchor, Button, Group, SimpleGrid, Stack, Textarea, TextInput } from "@mantine/core";
-import { IconAlertCircle } from "@tabler/icons-react";
+import { Anchor, Button, Group, SimpleGrid, Stack, Text, Textarea, TextInput } from "@mantine/core";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { ApiError, errorMessage } from "@/lib/api-client";
+import { FormAlert } from "@/components/ui";
+import { ApiError } from "@/lib/api-client";
 import { jobSchema, toJobInput, type JobFormValues } from "../schemas";
 
 interface Props {
@@ -35,18 +35,15 @@ export function JobForm({ defaultValues, submitLabel, pending, error, onSubmit, 
   const serverFieldErrors = error instanceof ApiError ? error.fieldErrors() : {};
 
   return (
-    <form onSubmit={handleSubmit((values) => onSubmit(toJobInput(values)))} noValidate aria-label="Job description form">
+    <form onSubmit={handleSubmit((values) => onSubmit(toJobInput(values)))} noValidate aria-label="Job details form">
       <Stack gap="md">
-        {Boolean(error) && (
-          <Alert color="red" variant="light" icon={<IconAlertCircle size={18} />} role="alert">
-            {errorMessage(error)}{" "}
-            {duplicateId && (
-              <Anchor component={Link} href={`/jobs/${duplicateId}`}>
-                Open the saved job
-              </Anchor>
-            )}
-          </Alert>
-        )}
+        <FormAlert error={error}>
+          {duplicateId && (
+            <Anchor component={Link} href={`/jobs/${duplicateId}`}>
+              Open the saved job
+            </Anchor>
+          )}
+        </FormAlert>
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
           <TextInput label="Job title" required error={errors.title?.message ?? serverFieldErrors.title} {...register("title")} />
           <TextInput label="Company" error={errors.company?.message} {...register("company")} />
@@ -68,7 +65,9 @@ export function JobForm({ defaultValues, submitLabel, pending, error, onSubmit, 
           {...register("description")}
         />
         <Group justify="space-between">
-          <span style={{ fontSize: 12, color: "var(--mantine-color-dimmed)" }}>{length.toLocaleString()} / 30,000</span>
+          <Text size="xs" c="dimmed">
+            {length.toLocaleString()} / 30,000 characters
+          </Text>
           <Group>
             {onCancel && (
               <Button variant="default" onClick={onCancel}>

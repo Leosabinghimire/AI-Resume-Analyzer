@@ -1,16 +1,41 @@
 "use client";
 
-import { Alert, Anchor, Button, Card, Group, List, Stack, Text, TextInput } from "@mantine/core";
+import { Alert, Anchor, Button, Grid, Group, Paper, Stack, Text, TextInput, ThemeIcon } from "@mantine/core";
 import { IconAlertCircle, IconFileText, IconLock, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { PageHeader } from "@/components/common/PageHeader";
+import { BulletList, FormAlert, PageHeader, SectionCard } from "@/components/ui";
 import { useUploadResume } from "@/features/resumes/api";
 import { ResumeDropzone } from "@/features/resumes/components/ResumeDropzone";
-import { ApiError, errorMessage } from "@/lib/api-client";
+import { ApiError } from "@/lib/api-client";
 import { formatFileSize } from "@/lib/format";
 import { notifySuccess } from "@/lib/notify";
+
+function SelectedFile({ file, onClear, disabled }: { file: File; onClear: () => void; disabled: boolean }) {
+  return (
+    <Paper withBorder p="md" radius="lg" bg="var(--app-surface-muted)">
+      <Group justify="space-between" wrap="nowrap">
+        <Group gap="md" wrap="nowrap" style={{ minWidth: 0 }}>
+          <ThemeIcon size={44} radius="md" variant="light">
+            <IconFileText size={24} stroke={1.6} />
+          </ThemeIcon>
+          <div style={{ minWidth: 0 }}>
+            <Text fw={600} truncate>
+              {file.name}
+            </Text>
+            <Text size="xs" c="dimmed">
+              {formatFileSize(file.size)}
+            </Text>
+          </div>
+        </Group>
+        <Button variant="subtle" color="gray" leftSection={<IconX size={16} />} onClick={onClear} disabled={disabled}>
+          Choose another file
+        </Button>
+      </Group>
+    </Paper>
+  );
+}
 
 export default function UploadResumePage() {
   const router = useRouter();
@@ -23,6 +48,13 @@ export default function UploadResumePage() {
     upload.error instanceof ApiError && upload.error.code === "duplicate_resume"
       ? (upload.error.details as { resume_id?: string } | undefined)?.resume_id
       : undefined;
+
+  const choose = (f: File) => {
+    setClientError(null);
+    upload.reset();
+    setFile(f);
+    setTitle(f.name.replace(/\.(pdf|docx)$/i, ""));
+  };
 
   const submit = () => {
     if (!file) return;
@@ -44,86 +76,77 @@ export default function UploadResumePage() {
         description="Text is extracted and organized into sections on the server. You can review and correct everything next."
         breadcrumbs={[{ label: "Resumes", href: "/resumes" }, { label: "Upload" }]}
       />
-      <Card maw={760}>
-        <Stack gap="md">
-          {!file ? (
-            <ResumeDropzone
-              loading={false}
-              onFile={(f) => {
-                setClientError(null);
-                upload.reset();
-                setFile(f);
-                setTitle(f.name.replace(/\.(pdf|docx)$/i, ""));
-              }}
-              onReject={setClientError}
-            />
-          ) : (
-            <Group justify="space-between" p="md" style={{ border: "1px solid var(--mantine-color-default-border)", borderRadius: 8 }}>
-              <Group gap="sm">
-                <IconFileText size={28} stroke={1.4} aria-hidden />
-                <div>
-                  <Text fw={500}>{file.name}</Text>
-                  <Text size="xs" c="dimmed">
-                    {formatFileSize(file.size)}
-                  </Text>
-                </div>
-              </Group>
-              <Button
-                variant="subtle"
-                color="gray"
-                leftSection={<IconX size={16} />}
-                onClick={() => {
-                  setFile(null);
-                  upload.reset();
-                }}
-                disabled={upload.isPending}
-              >
-                Choose another file
-              </Button>
-            </Group>
-          )}
-
-          {clientError && (
-            <Alert color="red" variant="light" icon={<IconAlertCircle size={18} />} role="alert">
-              {clientError}
-            </Alert>
-          )}
-          {upload.error && (
-            <Alert color="red" variant="light" icon={<IconAlertCircle size={18} />} role="alert" title="Upload failed">
-              {errorMessage(upload.error)}{" "}
-              {duplicateId && (
-                <Anchor component={Link} href={`/resumes/${duplicateId}`}>
-                  Open the existing resume
-                </Anchor>
+      <Grid gutter="lg">
+        <Grid.Col span={{ base: 12, md: 8 }}>
+          <SectionCard>
+            <Stack gap="lg">
+              {file ? (
+                <SelectedFile
+                  file={file}
+                  disabled={upload.isPending}
+                  onClear={() => {
+                    setFile(null);
+                    upload.reset();
+                  }}
+                />
+              ) : (
+                <ResumeDropzone loading={false} onFile={choose} onReject={setClientError} />
               )}
-            </Alert>
-          )}
-
-          <TextInput
-            label="Title"
-            description="How this resume appears in your library."
-            value={title}
-            onChange={(e) => setTitle(e.currentTarget.value)}
-            maxLength={150}
-            disabled={!file}
-          />
-          <Group justify="flex-end">
-            <Button component={Link} href="/resumes" variant="default">
-              Cancel
-            </Button>
-            <Button onClick={submit} disabled={!file} loading={upload.isPending}>
-              Upload and parse
-            </Button>
-          </Group>
-          <Alert color="gray" variant="light" icon={<IconLock size={18} />} title="How your file is handled">
-            <List size="sm" spacing={2}>
-              <List.Item>The file is checked by content type and size, then stored privately in your account.</List.Item>
-              <List.Item>Parsing runs on the server without AI. Nothing is sent to an external provider.</List.Item>
-              <List.Item>You can delete the file and all derived data at any time.</List.Item>
-            </List>
-          </Alert>
-        </Stack>
-      </Card>
+              {clientError && (
+                <Alert color="red" icon={<IconAlertCircle size={18} />} role="alert">
+                  {clientError}
+                </Alert>
+              )}
+              <FormAlert error={upload.error} title="Upload failed">
+                {duplicateId && (
+                  <Anchor component={Link} href={`/resumes/${duplicateId}`}>
+                    Open the existing resume
+                  </Anchor>
+                )}
+              </FormAlert>
+              <TextInput
+                label="Title"
+                description="How this resume appears in your library."
+                value={title}
+                onChange={(e) => setTitle(e.currentTarget.value)}
+                maxLength={150}
+                disabled={!file}
+              />
+              <Group justify="flex-end">
+                <Button component={Link} href="/resumes" variant="default">
+                  Cancel
+                </Button>
+                <Button onClick={submit} disabled={!file} loading={upload.isPending}>
+                  Upload and parse
+                </Button>
+              </Group>
+            </Stack>
+          </SectionCard>
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 4 }}>
+          <Stack gap="lg">
+            <SectionCard title="How your file is handled" icon={<IconLock size={18} />}>
+              <BulletList
+                variant="check"
+                items={[
+                  "Checked by content type and size, then stored privately in your account.",
+                  "Parsed on the server without AI. Nothing goes to an external provider.",
+                  "Delete the file and everything derived from it at any time.",
+                ]}
+              />
+            </SectionCard>
+            <SectionCard title="Tips for best results">
+              <BulletList
+                items={[
+                  "Use a text-based PDF or DOCX; scanned images cannot be read.",
+                  "Clear headings like Experience, Education and Skills improve detection.",
+                  "Single-column layouts parse more reliably than tables or columns.",
+                ]}
+              />
+            </SectionCard>
+          </Stack>
+        </Grid.Col>
+      </Grid>
     </>
   );
 }

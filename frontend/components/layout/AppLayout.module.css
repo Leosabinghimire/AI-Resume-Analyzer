@@ -1,0 +1,43 @@
+.navbar {
+  background: var(--app-surface);
+  border-color: var(--app-border);
+}
+
+.header {
+  background: color-mix(in srgb, var(--app-surface) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(8px);
+  border-color: var(--app-border);
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+  padding: 0 12px;
+  margin: 16px 0 6px;
+}
+
+.navLink {
+  border-radius: var(--mantine-radius-md);
+  padding: 8px 12px;
+  margin-bottom: 2px;
+  font-weight: 500;
+  color: var(--mantine-color-text);
+
+  &[data-active] {
+    background: var(--app-brand-soft);
+    color: light-dark(var(--mantine-color-brand-7), var(--mantine-color-brand-2));
+    font-weight: 600;
+  }
+}
+
+.userCard {
+  border-top: 1px solid var(--app-border);
+  padding-top: var(--mantine-spacing-sm);
+}
+
+.main {
+  background: var(--app-bg);
+}

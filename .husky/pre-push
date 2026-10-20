@@ -1,0 +1,16 @@
+# Fast checks that need no database. Backend integration tests (pytest) and Playwright E2E need
+# PostgreSQL; run them locally before releasing (see docs/setup.md).
+
+echo "pre-push: frontend unit tests"
+(cd frontend && npm test --silent) || exit 1
+
+if [ -x backend/.venv/Scripts/mypy.exe ]; then mypy=.venv/Scripts/mypy.exe
+elif [ -x backend/.venv/bin/mypy ]; then mypy=.venv/bin/mypy
+else mypy=""
+fi
+if [ -n "$mypy" ]; then
+  echo "pre-push: backend type check"
+  (cd backend && $mypy app) || exit 1
+else
+  echo "pre-push: backend venv not found, skipping mypy" >&2
+fi

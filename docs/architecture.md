@@ -78,13 +78,28 @@ Safety pipeline for every AI call:
 
 | Folder | Contents |
 |---|---|
-| `app/(marketing)` | Landing, features (incl. scoring), privacy, server-rendered |
-| `app/(auth)` | Login, register, forgot/reset password |
-| `app/(app)` | Authenticated pages inside `AppLayout` (session guard + navigation) |
-| `features/*` | Per-domain TanStack Query hooks (`api.ts`), forms, schemas and components |
-| `components/` | Shared UI: page header, empty/loading/error states, score ring/breakdown, skill badges, AI source badge |
-| `lib/` | API client (`ApiError`, CSRF header, 401 handler), query keys, formatting, theme, notifications |
+| `app/(marketing)` | Landing, features (incl. scoring), privacy; server-rendered |
+| `app/(auth)` | Split-screen login, register, forgot/reset password (shared `AuthCard`) |
+| `app/(app)` | Authenticated pages inside `AppLayout`; each page is a thin composition of feature components |
+| `components/ui` | Design-system primitives used everywhere: `SectionCard`, `DataTable` (typed columns), `StatCard`, `PageHeader`, `EmptyState`, `QueryBoundary`, `IconAction`, `PriorityList`, `BulletList`, `MetricTile`, `SearchInput`, `ListPagination`, `FormAlert`, `AISourceBadge` |
+| `components/domain` | Visuals shared across features: `ScoreRing`/`ScoreBadge`, `ScoreBreakdown`, skill badges, `VersionSourceBadge` |
+| `components/layout` | App shell (grouped sidebar from `navigation.ts`, `UserMenu`), public header, logo, theme toggle |
+| `components/marketing` | `Section`, `FeatureCard`, `ProductPreview` (labeled sample data) |
+| `features/*` | Per-domain TanStack Query hooks (`api.ts`), Zod schemas, and components such as `ResumeWorkspace`, `FeedbackReport`, `JobChecklist`, `AnalysisHistoryTable`, pickers (`ResumeVersionPicker`, `JobSelect`) |
+| `hooks/` | `useListParams` (debounced search + paging), `useSelection` (bounded multi-select) |
+| `lib/` | API client (`ApiError`, CSRF header, 401 handler), theme tokens and CSS variables, constants, formatting, notifications and `confirmAction` |
 | `types/api.ts` | TypeScript mirror of the API contract |
+
+### Design system
+
+- **Tokens** live in `lib/theme.ts`: an indigo brand scale, a tuned dark palette, typography scale,
+  radii, shadows and component defaults. `cssVariablesResolver` adds app tokens (`--app-bg`,
+  `--app-surface`, `--app-border`, `--app-brand-soft`…) with separate light and dark values.
+- **Consistency by construction**: lists render through `DataTable`, content through `SectionCard`,
+  async states through `QueryBoundary`, destructive actions through `confirmAction`, and priorities
+  and version sources through shared metadata in `lib/constants.ts`.
+- **Server/client boundary**: primitives avoid Mantine dot-notation compounds where they may render
+  in server components, and plain data (e.g. `PUBLIC_LINKS`) lives in non-client modules.
 
 ## Scaling notes
 

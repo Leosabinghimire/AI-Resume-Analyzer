@@ -1,5 +1,26 @@
 body {
-  background: var(--mantine-color-body);
+  background: var(--app-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Cards and papers sit on the app background with a consistent surface and border. */
+.mantine-Card-root,
+.mantine-Paper-root[data-with-border] {
+  background-color: var(--app-surface);
+  border-color: var(--app-border);
+}
+
+.mantine-Table-thead {
+  background: var(--app-surface-muted);
+}
+
+.mantine-Table-th {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--app-text-muted);
 }
 
 .diff-insert {

@@ -66,6 +66,11 @@ Open <http://localhost:3000>.
 Use `127.0.0.1` rather than `localhost` for `BACKEND_URL`: Node may resolve `localhost` to IPv6 `::1`,
 while uvicorn listens on IPv4 by default.
 
+## Git hooks
+
+From the repository root, run `npm install` once. Husky then runs ESLint, the TypeScript check and Ruff
+on staged files before each commit, and the frontend unit tests plus mypy before each push.
+
 ## 4. AI provider (optional)
 
 Without configuration the app uses the **rule-based demo provider**. Its output is always labeled

@@ -1,11 +1,10 @@
 "use client";
 
-import { Button, SimpleGrid, Stack, TagsInput, TextInput } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import { SimpleGrid, Stack, TagsInput, TextInput } from "@mantine/core";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import type { ResumeData } from "@/types/api";
 import { BulletListInput } from "./BulletListInput";
-import { EntryCard, newId } from "./SectionCard";
+import { AddEntryButton, EntryCard, newId } from "./EntryCard";
 
 export function ExperienceEditor() {
   const { control, register, watch } = useFormContext<ResumeData>();
@@ -34,14 +33,7 @@ export function ExperienceEditor() {
           </EntryCard>
         );
       })}
-      <Button
-        variant="light"
-        leftSection={<IconPlus size={16} />}
-        w="fit-content"
-        onClick={() => append({ id: newId(), title: "", company: "", location: "", start_date: "", end_date: "", bullets: [""] })}
-      >
-        Add experience
-      </Button>
+      <AddEntryButton label="Add experience" onClick={() => append({ id: newId(), title: "", company: "", location: "", start_date: "", end_date: "", bullets: [""] })} />
     </Stack>
   );
 }
@@ -77,14 +69,7 @@ export function ProjectsEditor() {
           </EntryCard>
         );
       })}
-      <Button
-        variant="light"
-        leftSection={<IconPlus size={16} />}
-        w="fit-content"
-        onClick={() => append({ id: newId(), name: "", url: "", technologies: [], bullets: [""] })}
-      >
-        Add project
-      </Button>
+      <AddEntryButton label="Add project" onClick={() => append({ id: newId(), name: "", url: "", technologies: [], bullets: [""] })} />
     </Stack>
   );
 }

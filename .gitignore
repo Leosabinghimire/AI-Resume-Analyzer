@@ -36,3 +36,6 @@ Thumbs.db
 
 # Playwright MCP artifacts
 .playwright-mcp/
+
+# Root tooling (Husky)
+/node_modules/

@@ -46,9 +46,3 @@ export function scoreBand(score: number): ScoreBand {
   if (score >= 40) return { color: "yellow", label: "Partial alignment" };
   return { color: "red", label: "Low alignment" };
 }
-
-export const VERSION_SOURCE_LABELS: Record<string, string> = {
-  parsed: "Parsed",
-  manual: "Manual edit",
-  ai_assisted: "AI-assisted",
-};

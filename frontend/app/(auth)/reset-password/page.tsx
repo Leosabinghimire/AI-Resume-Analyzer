@@ -1,15 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Anchor, Button, Paper, PasswordInput, Stack, Text, Title } from "@mantine/core";
+import { Alert, Anchor, Button, PasswordInput, Stack } from "@mantine/core";
 import { IconAlertCircle, IconCircleCheck } from "@tabler/icons-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useForm } from "react-hook-form";
+import { FormAlert } from "@/components/ui";
 import { useConfirmPasswordReset } from "@/features/auth/api";
+import { AuthCard } from "@/features/auth/components/AuthCard";
 import { resetPasswordSchema, type ResetPasswordValues } from "@/features/auth/schemas";
-import { errorMessage } from "@/lib/api-client";
 
 function ResetPasswordForm() {
   const token = useSearchParams().get("token") ?? "";
@@ -25,7 +26,7 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <Alert color="red" variant="light" icon={<IconAlertCircle size={18} />}>
+      <Alert color="red" icon={<IconAlertCircle size={18} />}>
         This reset link is incomplete. Request a new link from the{" "}
         <Anchor component={Link} href="/forgot-password">
           password reset page
@@ -34,10 +35,9 @@ function ResetPasswordForm() {
       </Alert>
     );
   }
-
   if (confirm.isSuccess) {
     return (
-      <Alert color="teal" variant="light" icon={<IconCircleCheck size={18} />}>
+      <Alert color="teal" icon={<IconCircleCheck size={18} />}>
         {confirm.data.message}{" "}
         <Anchor component={Link} href="/login">
           Sign in
@@ -45,15 +45,10 @@ function ResetPasswordForm() {
       </Alert>
     );
   }
-
   return (
     <form onSubmit={handleSubmit(({ new_password }) => confirm.mutate({ token, new_password }))} noValidate>
       <Stack gap="md">
-        {confirm.error && (
-          <Alert color="red" variant="light" icon={<IconAlertCircle size={18} />} role="alert">
-            {errorMessage(confirm.error)}
-          </Alert>
-        )}
+        <FormAlert error={confirm.error} />
         <PasswordInput
           label="New password"
           description="At least 8 characters, with a letter and a number."
@@ -69,7 +64,7 @@ function ResetPasswordForm() {
           error={errors.confirm_password?.message}
           {...register("confirm_password")}
         />
-        <Button type="submit" loading={confirm.isPending} fullWidth>
+        <Button type="submit" size="md" loading={confirm.isPending} fullWidth>
           Set new password
         </Button>
       </Stack>
@@ -79,20 +74,10 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Paper withBorder shadow="sm" p={{ base: "lg", sm: "xl" }}>
-      <Stack gap="md">
-        <div>
-          <Title order={2} fz={24}>
-            Choose a new password
-          </Title>
-          <Text c="dimmed" size="sm">
-            Resetting your password signs you out of all other sessions.
-          </Text>
-        </div>
-        <Suspense>
-          <ResetPasswordForm />
-        </Suspense>
-      </Stack>
-    </Paper>
+    <AuthCard title="Choose a new password" subtitle="Resetting your password signs you out of all other sessions.">
+      <Suspense>
+        <ResetPasswordForm />
+      </Suspense>
+    </AuthCard>
   );
 }
