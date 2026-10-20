@@ -1,0 +1,38 @@
+# Local tooling (portable PostgreSQL, data directory)
+.devtools/
+
+# Secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+backend/storage/
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/.next-e2e/
+frontend/out/
+frontend/next-env.d.ts
+frontend/tsconfig.tsbuildinfo
+frontend/playwright-report/
+frontend/test-results/
+frontend/e2e/.auth/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Playwright MCP artifacts
+.playwright-mcp/

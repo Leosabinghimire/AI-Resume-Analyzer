@@ -1,0 +1,26 @@
+body {
+  background: var(--mantine-color-body);
+}
+
+.diff-insert {
+  background: light-dark(var(--mantine-color-teal-1), rgba(18, 184, 134, 0.25));
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.diff-delete {
+  background: light-dark(var(--mantine-color-red-1), rgba(250, 82, 82, 0.25));
+  text-decoration: line-through;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: var(--mantine-color-dimmed);
+  font-size: 12px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}

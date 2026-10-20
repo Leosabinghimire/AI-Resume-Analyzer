@@ -1,0 +1,20 @@
+Senior Full-Stack Engineer
+
+About us
+We build analytics software for logistics teams.
+
+Responsibilities
+- Design, build and maintain REST APIs using Python and FastAPI
+- Build responsive user interfaces with React and TypeScript
+- Write unit and integration tests and participate in code reviews
+- Improve CI/CD pipelines and deployment automation on AWS
+
+Requirements
+- 4+ years of professional software development experience
+- Strong experience with Python, React and TypeScript
+- Experience with PostgreSQL and Docker
+- Bachelor's degree in Computer Science or equivalent experience
+
+Nice to have
+- Experience with Kubernetes and GraphQL
+- Familiarity with Terraform
