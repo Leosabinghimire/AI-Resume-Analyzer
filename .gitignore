@@ -39,3 +39,6 @@ Thumbs.db
 
 # Root tooling (Husky)
 /node_modules/
+
+# Local Netlify folder
+.netlify

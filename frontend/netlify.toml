@@ -1,0 +1,13 @@
+# Netlify builds and serves the Next.js frontend from this folder. In the Netlify UI, set the base
+# directory to "frontend". Set BACKEND_URL (the API URL) in Site configuration → Environment
+# variables; it is read at build time for the /api/* rewrite.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

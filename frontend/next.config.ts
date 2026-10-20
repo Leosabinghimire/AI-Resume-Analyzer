@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 // The browser only ever talks to this Next.js origin. /api/* is proxied to FastAPI, so the session
@@ -13,6 +14,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // The repo root has its own package-lock (git hooks), so pin tracing to this app.
+  outputFileTracingRoot: path.join(__dirname),
   // Lets the E2E server build into its own directory so it can run next to a normal dev server.
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   poweredByHeader: false,
