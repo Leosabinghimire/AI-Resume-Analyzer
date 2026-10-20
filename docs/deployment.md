@@ -11,6 +11,25 @@ Because the frontend proxies `/api/*`, users only ever see the frontend domain a
 is first-party. The API domain does not need to be public-facing, but it must be reachable from the
 frontend host.
 
+## Quick path: Netlify + Render + Neon (all free tiers)
+
+The repository includes `netlify.toml` (frontend) and `render.yaml` (API Blueprint).
+
+1. **Neon**: create a project and copy the pooled connection string
+   (`postgresql://…neon.tech/…?sslmode=require`). The API converts it to the psycopg driver itself.
+2. **Render**: New → Blueprint → select this repository. When prompted, set `DATABASE_URL` to the Neon
+   string and leave `FRONTEND_ORIGINS` / `FRONTEND_BASE_URL` as a placeholder for now. `SECRET_KEY` is
+   generated. Wait for `/health` to return `{"status":"ok"}` and copy the service URL.
+3. **Netlify**: Add new project → Import from GitHub → this repository (settings come from
+   `netlify.toml`). Add the environment variable `BACKEND_URL=https://<your-api>.onrender.com`, then
+   deploy.
+4. **Back on Render**: set `FRONTEND_ORIGINS` and `FRONTEND_BASE_URL` to the Netlify URL
+   (e.g. `https://<site>.netlify.app`). Render redeploys automatically.
+
+Free-tier caveats: the Render instance sleeps after inactivity (the first request can take about a
+minute), and its disk is ephemeral, so uploaded original files disappear on restart while parsed text,
+versions and analyses remain in Neon.
+
 ## 1. Database
 
 Create a PostgreSQL 16+ database (Neon, Supabase, Render, RDS…). Use a dedicated user and require TLS:

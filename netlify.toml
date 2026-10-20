@@ -1,0 +1,10 @@
+# Netlify builds and serves the Next.js frontend. Set BACKEND_URL (the Render API URL) in
+# Site configuration → Environment variables; it is read at build time for the /api/* rewrite.
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"

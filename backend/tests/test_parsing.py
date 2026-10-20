@@ -87,3 +87,16 @@ def test_job_without_sections_treats_skills_as_required() -> None:
     )
     assert job.required_skills == ["Python", "Django"]
     assert job.parsed.min_years_experience is None
+
+
+def test_hosted_database_urls_use_psycopg_driver() -> None:
+    from app.core.config import Settings
+
+    secret = "x" * 40
+    neon = Settings(secret_key=secret, database_url="postgresql://u:p@ep-x.neon.tech/db?sslmode=require")
+    assert neon.database_url == "postgresql+psycopg://u:p@ep-x.neon.tech/db?sslmode=require"
+    assert Settings(secret_key=secret, database_url="postgres://u:p@h/db").database_url.startswith(
+        "postgresql+psycopg://"
+    )
+    explicit = "postgresql+psycopg://u:p@h/db"
+    assert Settings(secret_key=secret, database_url=explicit).database_url == explicit

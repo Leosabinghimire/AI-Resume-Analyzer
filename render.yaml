@@ -1,0 +1,35 @@
+# Render Blueprint for the FastAPI backend (https://render.com/docs/blueprint-spec).
+# The database is external (Neon); paste its connection string as DATABASE_URL when prompted.
+services:
+  - type: web
+    name: ai-resume-analyzer-api
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # Free instances have no pre-deploy step, so migrations run on start (they are idempotent).
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.6
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_ORIGINS
+        sync: false
+      - key: FRONTEND_BASE_URL
+        sync: false
+      - key: AI_PROVIDER
+        value: mock
+      # Free instances have an ephemeral disk: uploaded originals are lost on restart, while parsed
+      # text and versions stay in the database. Attach a disk or object storage for durable files.
+      - key: UPLOAD_DIR
+        value: /tmp/uploads
