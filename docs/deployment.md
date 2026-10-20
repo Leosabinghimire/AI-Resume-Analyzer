@@ -18,7 +18,7 @@ This is how the public demo is deployed.
 | Part | Service | Config |
 |---|---|---|
 | Frontend | Netlify site `ai-resume-analyzer-sabin` | `frontend/netlify.toml`, `scripts/deploy-netlify.sh`, env `BACKEND_URL` |
-| API | Render web service `ai-resume-analyzer-api` (auto-deploys from `main`) | `render.yaml` |
+| API | Render web service `ai-resume-analyzer-api` | `render.yaml` |
 | Database | Neon project `ai-resume-analyzer` (US West, pooled connection) | `DATABASE_URL` on Render |
 
 1. **Neon**: create a project and copy the **pooled** connection string
@@ -36,6 +36,10 @@ This is how the public demo is deployed.
 
    Alternatively, link the repository in the Netlify UI with base directory `frontend` so Netlify
    builds on every push.
+
+Redeploying the API after backend changes: Render → service → **Manual Deploy → Deploy latest commit**,
+or `render deploys create <service-id>` with the Render CLI. To deploy on every push instead, connect
+the repository through Render's GitHub app (Service → Settings → Build & Deploy).
 
 Gotchas found while deploying:
 
